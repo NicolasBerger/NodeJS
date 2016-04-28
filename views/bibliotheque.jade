@@ -1,0 +1,36 @@
+extends layout
+
+block content
+	message= message
+		
+	if bibliotheque
+		h3= "Livres de la bibliothèque " + bibliotheque.nom + " : "
+		
+		form(id="formB", method="post")
+			br
+			div.input
+				input(type="text", id="isbn", name="isbn", placeholder='ISBN')
+				input(type="hidden", name="action", value="creerLivre/"+bibliotheque.nom)
+				button(type="button", onclick="testNotEmpty('isbn', 'formB', 'messageLivre');")
+					|Ajouter
+				span(id="messageLivre")
+				
+		if bibliotheque.livres && bibliotheque.livres.length > 0
+			table
+				each livre in bibliotheque.livres
+					tr
+						td(style="width:auto")
+							a(href='/bibliotheque/'+bibliotheque.nom+'/livre/'+livre.isbn)= livre.titre
+						td
+							input(type="image", src="/delete.jpg", alt="Suppr", style="height:15px;" onclick="supprimer('"+bibliotheque.nom+"','"+livre.titre+"','"+livre.isbn+"');")
+		else
+			br
+			|Aucun livre
+	else
+		p Bibliothèque introuvable
+	script.
+		function supprimer(nom, titre, isbn){
+			if(confirm("Supprimer le livre \"" + titre + "\" de cette bibliothèque ?")){
+				createSubmitForm("/bibliotheque/"+nom+"/livre/"+isbn+"/?_method=DELETE");
+			}
+		}

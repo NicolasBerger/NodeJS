@@ -1,0 +1,48 @@
+extends layout
+
+block content
+	p
+		span(id="message")= message
+		
+	h3 Créer une bibliothèque
+	form(id="formB", method="post")
+		div.input
+			input(type="text", id="nomBibliotheque", name="nom", placeholder="Nom")
+			input(type="hidden", name="action", value="creerBibliotheque")
+			button(type="button", onclick="testNotEmpty('nomBibliotheque', 'formB', 'messageBibliotheque');")
+				|Créer
+			span(id="messageBibliotheque")
+			
+	h3 Mes bibliothèques
+	if bibliotheques && bibliotheques.length > 0
+		table
+			each b in bibliotheques
+				tr
+					td(style="width:auto")
+						a(href='/bibliotheque/'+b.nom)
+							span= b.nom
+					td
+						input(type="image", src="/delete.jpg", alt="Suppr", style="height:15px;" onclick="supprimer('"+b.nom+"');")
+					td
+						input(type="image", src="/update.jpg", alt="Suppr", style="height:15px;" onclick="changerNom('"+b.nom+"');")
+	else
+		|Aucune bibliothèque
+	script.
+		function changerNom(old){
+			var nom = prompt("Nouveau nom", old);
+			if(nom !== undefined && nom !== null && nom !== '' && nom !== old){
+				createSubmitForm("/bibliotheque/"+old+"/"+nom+"/?_method=PUT");
+			}
+		}
+		function supprimer(nom){
+			if(confirm("Supprimer la bibliothèque " + nom + " ?")){
+				createSubmitForm("/bibliotheque/"+nom+"/?_method=DELETE");
+			}
+		}
+		function createSubmitForm(action){
+			var form = document.createElement("form");
+			form.setAttribute("method", "post");
+			form.setAttribute("action", action);
+			document.body.appendChild(form);
+			form.submit();
+		}

@@ -1,0 +1,12 @@
+//extends layout
+
+block content
+	error= error
+	form(name="form1", method="post")
+		div.input
+			span.label Name
+			input(type="text", name="nom")
+			span.label Password
+			input(type="text", name="mdp")
+
+			input(type="submit", value="Login")

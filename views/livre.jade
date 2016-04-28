@@ -1,0 +1,24 @@
+extends layout
+
+block content
+	message= message
+		
+	if livre
+		h3= livre.titre
+		
+		p
+			|ISBN : !{livre.isbn}
+			br
+			|Auteur : !{livre.auteur}
+			br
+			|Date d'ajout : !{livre.dateCreation}
+			if livre.url
+				br
+				a(href=livre.url, target="_blank")
+					img(src="/amazon.jpg", style="height:30px;", alt="Amazon", title="Acheter sur Amazon")
+		form(name="formL", method="post" action="/bibliotheque/"+bibliotheque+"/livre/"+livre.isbn+"/?_method=DELETE")
+			div.actions
+				input(type="submit", value="Supprimer")
+		
+	else
+		h3 Livre non trouvé
