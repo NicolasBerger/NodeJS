@@ -1,10 +1,10 @@
-extends layout
+ï»¿extends layout
 
 block content
 	message= message
 		
 	if bibliotheque
-		h3= "Livres de la bibliothèque " + bibliotheque.nom + " : "
+		h3= "Livres de la bibliothÃ¨que " + bibliotheque.nom + " : "
 		
 		form(id="formB", method="post")
 			br
@@ -14,12 +14,22 @@ block content
 				button(type="button", onclick="testNotEmpty('isbn', 'formB', 'messageLivre');")
 					|Ajouter
 				span(id="messageLivre")
+				if error
+					span(style="color:red")= " "+error 
 				
 		if bibliotheque.livres && bibliotheque.livres.length > 0
-			table
+			table.listeLivres
+				-var nbLigne = 0;
+				-var classe;
 				each livre in bibliotheque.livres
+					-nbLigne += 1;
+					if nbLigne%2==0
+						-classe = "lignePair";
+					else
+						-classe = "ligneImpair";
+						
 					tr
-						td(style="width:auto")
+						td(class=classe)
 							a(href='/bibliotheque/'+bibliotheque.nom+'/livre/'+livre.isbn)= livre.titre
 						td
 							input(type="image", src="/delete.jpg", alt="Suppr", style="height:15px;" onclick="supprimer('"+bibliotheque.nom+"','"+livre.titre+"','"+livre.isbn+"');")
@@ -27,10 +37,10 @@ block content
 			br
 			|Aucun livre
 	else
-		p Bibliothèque introuvable
+		p BibliothÃ¨que introuvable
 	script.
 		function supprimer(nom, titre, isbn){
-			if(confirm("Supprimer le livre \"" + titre + "\" de cette bibliothèque ?")){
+			if(confirm("Supprimer le livre \"" + titre + "\" de cette bibliothÃ¨que ?")){
 				createSubmitForm("/bibliotheque/"+nom+"/livre/"+isbn+"/?_method=DELETE");
 			}
 		}

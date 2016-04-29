@@ -9,7 +9,7 @@ router.get('/',function (req, res) {
 		.exec(function (err, utilisateur) {
 			if (!err) {
 				if(utilisateur){
-					res.render('accueil',{bibliotheques: utilisateur.bibliotheques, breadcrumb: ['accueil']});
+					res.render('accueil',{bibliotheques: utilisateur.bibliotheques});
 				}else{
 					console.error(err);
 				}

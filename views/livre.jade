@@ -1,11 +1,11 @@
-extends layout
+﻿extends layout
 
 block content
 	message= message
 		
 	if livre
 		h3= livre.titre
-		
+		img(src=livre.url_image, alt="Illustration", style="float:left;padding-right:10px;")
 		p
 			|ISBN : !{livre.isbn}
 			br

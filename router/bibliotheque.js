@@ -1,4 +1,4 @@
-var router = require('express').Router();
+ï»¿var router = require('express').Router();
 var http = require('http');
 var https = require('https');
 var Utilisateur = require('../schemas/schemas').Utilisateur;
@@ -10,77 +10,125 @@ var AWS = function(accessKeyId, secretAccessKey, associateTag){
    var self = this;
 
 	self.itemLookup = function(itemId, req, res){
-		var params = [];
-		params.push({name: "Service", value: "AWSECommerceService"});
-		params.push({name: "AWSAccessKeyId", value: accessKeyId});
-		params.push({name: "AssociateTag", value: associateTag});
-		params.push({name: "Operation", value: "ItemLookup"});
-		params.push({name: "Timestamp", value: formattedTimestamp()});
-		params.push({name: "ItemId", value: itemId});
-		params.push({name: "ResponseGroup", value: "ItemAttributes"});
+		var attributes, url_image, item_url;
+		var itemPromise = new Promise(function(resolve, reject) {
+			var params = [];
+			params.push({name: "Service", value: "AWSECommerceService"});
+			params.push({name: "AWSAccessKeyId", value: accessKeyId});
+			params.push({name: "AssociateTag", value: associateTag});
+			params.push({name: "Operation", value: "ItemLookup"});
+			params.push({name: "Timestamp", value: formattedTimestamp()});
+			params.push({name: "ItemId", value: itemId});
+			params.push({name: "ResponseGroup", value: "ItemAttributes"});
 
-		var signature = computeSignature(params, secretAccessKey);
-		params.push({name: "Signature", value: signature});
-
-		var queryString = createQueryString(params);
-		var url = "https://webservices.amazon.com/onca/xml?"+queryString;    
-
-		https.get(url, function(response) {
-			// Continuously update stream with data
-			var body = '';
-			response.on('data', function(d) {
-				body += d;
-			});
-			response.on('end', function() {
-				parseString(body, 
-					function(err, result) {
-						console.log('Réponse reçue');
-						// Data reception is done, do whatever with it!
-						var parsed = JSON.parse(JSON.stringify(result));
-						var nomBibliotheque = req.params.nom;
-						var isbnLivre = req.body.isbn;
-						if(parsed && parsed['ItemLookupResponse']['Items'][0] && parsed['ItemLookupResponse']['Items'][0]['Item'][0]['ASIN'][0] == itemId){
-							var attributes = parsed['ItemLookupResponse']['Items'][0]['Item'][0]['ItemAttributes'][0];
-							sess = req.session;
-							Utilisateur
-								.findOne(
-									{nom : sess.utilisateur}, 
-									{bibliotheques: {$elemMatch: {nom: nomBibliotheque}}}
-								).exec(function (err, utilisateur) {
-									if (!err) {
-										if(utilisateur){
-											if(utilisateur.bibliotheques[0] !== undefined){
-												var livres = utilisateur.bibliotheques[0].livres;
-												for(var i=0;i<livres.length;i++){
-													if(livres[i].isbn == isbnLivre){
-														res.redirect('back');
-														return;
-													}
-												}
-												var livre = new Livre({
-													isbn: isbnLivre,
-													titre: attributes.Title[0],
-													auteur: attributes.Author[0],
-													url: parsed['ItemLookupResponse']['Items'][0]['Item'][0]['DetailPageURL'][0]
-												});
-												Utilisateur.update(
-													{_id: utilisateur._id, 'bibliotheques.nom': nomBibliotheque},
-													{$push: {'bibliotheques.$.livres': livre}},
-													function(err){if(err) console.log(err)}
-												);
-												console.log('Livre enregistré');
-											}
-											res.redirect('back');
-										}
-									}else{
-										console.log(err);
-									}
-								});
+			var signature = computeSignature(params, secretAccessKey);
+			params.push({name: "Signature", value: signature});
+			var queryString = createQueryString(params);
+			var url = "https://webservices.amazon.com/onca/xml?"+queryString;    
+			
+			https.get(url, function(response) {
+				var body = '';
+				response.on('data', function(d) {
+					body += d;
+				});
+				response.on('end', function() {
+					parseString(body, 
+						function(err, result) {
+							var parsed = JSON.parse(JSON.stringify(result));
+							console.log(result);
+							if(parsed && parsed['ItemLookupResponse']['Items'][0] && parsed['ItemLookupResponse']['Items'][0]['Item'][0]['ASIN'][0] == itemId){
+								attributes = parsed['ItemLookupResponse']['Items'][0]['Item'][0]['ItemAttributes'][0];
+								item_url = parsed['ItemLookupResponse']['Items'][0]['Item'][0]['DetailPageURL'][0];
+								resolve();
+							}
 						}
-					}
-				);
+					)
+				});
 			});
 		});
+		var imagePromise = new Promise(function(resolve, reject) {
+			var params = [];
+			params.push({name: "Service", value: "AWSECommerceService"});
+			params.push({name: "AWSAccessKeyId", value: accessKeyId});
+			params.push({name: "AssociateTag", value: associateTag});
+			params.push({name: "Operation", value: "ItemLookup"});
+			params.push({name: "Timestamp", value: formattedTimestamp()});
+			params.push({name: "ItemId", value: itemId});
+			params.push({name: "ResponseGroup", value: "Images"});
+
+			var signature = computeSignature(params, secretAccessKey);
+			params.push({name: "Signature", value: signature});
+			var queryString = createQueryString(params);
+			var url = "https://webservices.amazon.com/onca/xml?"+queryString;    
+			
+			https.get(url, function(response) {
+				var body = '';
+				response.on('data', function(d) {
+					body += d;
+				});
+				response.on('end', function() {
+					parseString(body, 
+						function(err, result) {
+							var parsed = JSON.parse(JSON.stringify(result));
+							if(parsed && parsed['ItemLookupResponse']['Items'][0] && parsed['ItemLookupResponse']['Items'][0]['Item'][0]['ASIN'][0] == itemId){
+								url_image = parsed['ItemLookupResponse']['Items'][0]['Item'][0]['LargeImage'][0]['URL'][0];
+								resolve();
+							}
+						}
+					)
+				});
+			});
+		});		
+		
+		Promise
+			.all([itemPromise, imagePromise])
+			.then(function() {
+				sess = req.session;
+				var nomBibliotheque = req.params.nom;
+				var isbnLivre = req.body.isbn;
+				Utilisateur
+					.findOne(
+						{nom : sess.utilisateur}, 
+						{bibliotheques: {$elemMatch: {nom: nomBibliotheque}}}
+					).exec(function (err, utilisateur) {
+						if (!err) {
+							if(utilisateur){
+												console.log('t');
+								if(utilisateur.bibliotheques[0] !== undefined){
+									var livres = utilisateur.bibliotheques[0].livres;
+									for(var i=0;i<livres.length;i++){
+										if(livres[i].isbn == isbnLivre){
+											res.render('bibliotheque',{
+												bibliotheque: utilisateur.bibliotheques[0], 
+												breadcrumb: ['bibliotheque'], 
+												context: [nomBibliotheque],
+												error: 'Vous possÃ©dez dÃ©jÃ  ce livre'});
+											return;
+										}
+									}
+									var livre = new Livre({
+										isbn: isbnLivre,
+										titre: attributes.Title[0],
+										auteur: attributes.Author[0],
+										url: item_url,
+										url_image: url_image
+									});
+									Utilisateur.update(
+										{_id: utilisateur._id, 'bibliotheques.nom': nomBibliotheque},
+										{$push: {'bibliotheques.$.livres': livre}},
+										function(err){if(err) console.log(err)}
+									);
+									console.log('Livre enregistrÃ©');
+								}
+								res.redirect('back');
+							}
+						}else{
+							console.log(err);
+						}
+					});
+			}, function() {
+			  console.log('Probleme lors des promesses');
+			});
 	}
 };
 
@@ -227,7 +275,7 @@ router.get('/:nom/livre/:isbn', function(req,res){
 					if(utilisateur.bibliotheques[0] !== undefined){
 						var livres = utilisateur.bibliotheques[0].livres;
 						for(var i=0;i<livres.length;i++){
-							if(livres[i].isbn == isbnLivre){		
+							if(livres[i].isbn == isbnLivre){							
 								res.render('livre',{
 									livre: utilisateur.bibliotheques[0].livres[i], 
 									bibliotheque : utilisateur.bibliotheques[0].nom,
@@ -239,7 +287,7 @@ router.get('/:nom/livre/:isbn', function(req,res){
 						}
 						res.redirect('back');			
 					}else{
-						console.log('Livre non trouvé');
+						console.log('Livre non trouvÃ©');
 						res.redirect('back');
 					}
 				}else{

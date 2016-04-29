@@ -1,4 +1,4 @@
-html
+﻿html
 	head
 		meta(charset='utf-8')
 		block title
@@ -9,22 +9,22 @@ html
 		h1
 			a(href="/accueil", style="text-decoration:none; color:inherit;")= "Gestion de bibliothèques"
 		
-		div
-			a(href="/accueil")= "Mes bibliothèques"
-			a(href="/livres")= "Mes livres"
-		br
+		div.topDiv
+			div.menu
+				a(href="/accueil")= "Mes bibliothèques"
+				a(href="/livres")= "Mes livres"
+				a(href="logout")= "Déconnexion"
 			
-		if breadcrumb
-			|Vous êtes ici : 
-			- var breadHref = "";
-			for b, i in breadcrumb
-				- breadHref += b + "/"
-				if context && context[i]
-					if i == 0 && context[0] != "accueil"
-						a(href="/accueil")= "/accueil"
-					- breadHref += context[i] + "/"
-				span= "/"
-				a(href="/"+breadHref)= b
+			div.breadcrumb
+				|Vous êtes ici : 
+				a(href="/accueil" class="accueil")= "accueil"
+				if breadcrumb
+					- var breadHref = "";
+					for b, i in breadcrumb
+						- breadHref += b + "/"
+						if context && context[i]								
+							- breadHref += context[i] + "/"
+						a(href="/"+breadHref)= b
 		block content
 		
 		script.

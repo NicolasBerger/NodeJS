@@ -1,4 +1,4 @@
-extends layout
+ï»¿extends layout
 
 block content
 	message= message
@@ -27,12 +27,12 @@ block content
 		p Aucun livre
 	script.
 		function supprimer(nom, titre, isbn){
-			if(confirm("Supprimer le livre \"" + titre + "\" de cette bibliothèque ?")){
+			if(confirm("Supprimer le livre \"" + titre + "\" de cette bibliothÃ¨que ?")){
 				createSubmitForm("/bibliotheque/"+nom+"/livre/"+isbn+"/?_method=DELETE");
 			}
 		}
 		function modifier(old, titre, isbn){
-			var nomBibliotheque = prompt("Dans quelle bibliothèque déplacer le livre \"" + titre + "\" ?", old);
+			var nomBibliotheque = prompt("Dans quelle bibliothÃ¨que dÃ©placer le livre \"" + titre + "\" ?", old);
 			if(nomBibliotheque !== undefined && nomBibliotheque !== null && nomBibliotheque !== '' && nomBibliotheque !== old){
 				createSubmitForm("/livres/"+isbn+"/"+old+"/"+nomBibliotheque+"/?_method=PUT");
 			}

@@ -6,6 +6,7 @@ var livre = new Schema({
     titre: {type: String, required: true},
 	auteur: {type: String, required: false},
 	url: {type: String, required: false},
+	url_image: {type: String, required: false},
     dateCreation: {type: Date, default: Date.now}
 });
 
