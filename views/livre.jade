@@ -6,7 +6,7 @@ block content
 	if livre
 		h3= livre.titre
 		img(src=livre.url_image, alt="Illustration", style="float:left;padding-right:10px;position:relative;z-index:1")
-		p(style="height:490px;padding-top:10px;background-color:white;position:relative")
+		div(style="height:490px;padding-top:10px;background-color:white;position:relative")
 			b ISBN : 
 			| !{livre.isbn}
 			br
@@ -16,10 +16,13 @@ block content
 			b Date d'ajout : 
 			| !{livre.dateCreation}
 			br
-			if livre.url
-				br
-				a(href=livre.url, target="_blank", style="position:absolute;bottom:10px")
-					img(src="/amazon.jpg", style="height:30px;", alt="Amazon", title="Acheter sur Amazon")
+			div(style="position:absolute;bottom:10px;right:10px")
+				a(href="http://recherche.fnac.com/SearchResult/ResultList.aspx?SCat=0%211&Search="+livre.titre, target="_blank")
+					img(src="/fnac.png", style="height:30px;", alt="Fnac", title="Rechercher sur Amazon")
+				if livre.url
+					a(href=livre.url, target="_blank", )
+						img(src="/amazon.jpg", style="height:30px;margin-left:5px", alt="Amazon", title="Voir sur Amazon")
+				
 		form(name="formL", method="post" action="/bibliotheque/"+bibliotheque+"/livre/"+livre.isbn+"/?_method=DELETE")
 			div.actions
 				input(type="submit", value="Supprimer", style="")

@@ -26,9 +26,6 @@ title, h1{
 	text-decoration: none;
 	padding : 10px 5px 11px 5px;
 }
-.menu a+a{
-	border-left: 1px solid #fff0d2;
-}
 .menu a:hover{
 	background-color: #f1cd84;
 }
@@ -73,7 +70,6 @@ title, h1{
 }
 .liste input{
 	display: block;
-	
 }
 .liste a{
 	display: block;
