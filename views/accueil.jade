@@ -30,10 +30,11 @@ block content
 							span= b.nom
 					td(class=classe)
 						input(type="image", src="/delete.jpg", alt="Suppr", style="height:15px;" onclick="supprimer('"+b.nom+"');")
-					td
+					td(class=classe)
 						input(type="image", src="/update.jpg", alt="Suppr", style="height:15px;" onclick="changerNom('"+b.nom+"');")
 	else
-		|Aucune bibliothèque
+		p.paragrapheBlanc Aucune bibliothèque
+	
 	script.
 		function changerNom(old){
 			var nom = prompt("Nouveau nom", old);

@@ -25,14 +25,14 @@ block content
 							a(href='/bibliotheque/'+bibliotheque.nom+'/livre/'+livre.isbn)= livre.titre
 						td(class=classe)
 							a(href='/bibliotheque/'+bibliotheque.nom)= bibliotheque.nom
-						td
+						td(class=classe)
 							input(type="image", src="/update.jpg", alt="Modifier", style="height:15px;" onclick="modifier('"+bibliotheque.nom+"','"+livre.titre+"','"+livre.isbn+"');")
-						td
+						td(class=classe)
 							input(type="image", src="/delete.jpg", alt="Suppr", style="height:15px;" onclick="supprimer('"+bibliotheque.nom+"','"+livre.titre+"','"+livre.isbn+"');")
 		if isLivre == false
-			p Aucun livre
+			p.paragrapheBlanc Aucun livre
 	else
-		p Aucun livre
+		p.paragrapheBlanc Aucun livre
 	script.
 		function supprimer(nom, titre, isbn){
 			if(confirm("Supprimer le livre \"" + titre + "\" de cette bibliothèque ?")){

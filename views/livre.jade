@@ -22,7 +22,7 @@ block content
 					img(src="/amazon.jpg", style="height:30px;", alt="Amazon", title="Acheter sur Amazon")
 		form(name="formL", method="post" action="/bibliotheque/"+bibliotheque+"/livre/"+livre.isbn+"/?_method=DELETE")
 			div.actions
-				input(type="submit", value="Supprimer", style="position:absolute;bottom:10;right:50%")
+				input(type="submit", value="Supprimer", style="")
 		
 	else
-		h3 Livre non trouvé
+		p.paragrapheBlanc Livre non trouvé

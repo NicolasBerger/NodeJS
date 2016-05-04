@@ -30,13 +30,12 @@ block content
 					tr
 						td(class=classe)
 							a(href='/bibliotheque/'+bibliotheque.nom+'/livre/'+livre.isbn)= livre.titre
-						td
+						td(class=classe)
 							input(type="image", src="/delete.jpg", alt="Suppr", style="height:15px;" onclick="supprimer('"+bibliotheque.nom+"','"+livre.titre+"','"+livre.isbn+"');")
 		else
-			br
-			|Aucun livre
+			p.paragrapheBlanc Aucun livre
 	else
-		p Bibliothèque introuvable
+		p.paragrapheBlanc Bibliothèque introuvable
 	script.
 		function supprimer(nom, titre, isbn){
 			if(confirm("Supprimer le livre \"" + titre + "\" de cette bibliothèque ?")){
