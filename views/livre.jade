@@ -5,20 +5,24 @@ block content
 		
 	if livre
 		h3= livre.titre
-		img(src=livre.url_image, alt="Illustration", style="float:left;padding-right:10px;")
-		p
-			|ISBN : !{livre.isbn}
+		img(src=livre.url_image, alt="Illustration", style="float:left;padding-right:10px;position:relative;z-index:1")
+		p(style="height:490px;padding-top:10px;background-color:white;position:relative")
+			b ISBN : 
+			| !{livre.isbn}
 			br
-			|Auteur : !{livre.auteur}
+			b Auteur : 
+			| !{livre.auteur}
 			br
-			|Date d'ajout : !{livre.dateCreation}
+			b Date d'ajout : 
+			| !{livre.dateCreation}
+			br
 			if livre.url
 				br
-				a(href=livre.url, target="_blank")
+				a(href=livre.url, target="_blank", style="position:absolute;bottom:10px")
 					img(src="/amazon.jpg", style="height:30px;", alt="Amazon", title="Acheter sur Amazon")
 		form(name="formL", method="post" action="/bibliotheque/"+bibliotheque+"/livre/"+livre.isbn+"/?_method=DELETE")
 			div.actions
-				input(type="submit", value="Supprimer")
+				input(type="submit", value="Supprimer", style="position:absolute;bottom:10;right:50%")
 		
 	else
 		h3 Livre non trouvé

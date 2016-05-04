@@ -93,7 +93,6 @@ var AWS = function(accessKeyId, secretAccessKey, associateTag){
 					).exec(function (err, utilisateur) {
 						if (!err) {
 							if(utilisateur){
-												console.log('t');
 								if(utilisateur.bibliotheques[0] !== undefined){
 									var livres = utilisateur.bibliotheques[0].livres;
 									for(var i=0;i<livres.length;i++){

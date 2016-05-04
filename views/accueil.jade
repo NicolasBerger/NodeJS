@@ -15,13 +15,20 @@ block content
 			
 	h3 Mes bibliothèques
 	if bibliotheques && bibliotheques.length > 0
-		table
+		table.liste
+			-var nbLigne = 0;
+			-var classe;
 			each b in bibliotheques
+				-nbLigne += 1;
+				if nbLigne%2==0
+					-classe = "lignePair";
+				else
+					-classe = "ligneImpair";
 				tr
-					td(style="width:auto")
+					td(class=classe)
 						a(href='/bibliotheque/'+b.nom)
 							span= b.nom
-					td
+					td(class=classe)
 						input(type="image", src="/delete.jpg", alt="Suppr", style="height:15px;" onclick="supprimer('"+b.nom+"');")
 					td
 						input(type="image", src="/update.jpg", alt="Suppr", style="height:15px;" onclick="changerNom('"+b.nom+"');")

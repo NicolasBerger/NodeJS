@@ -1,5 +1,6 @@
 var router = require('express').Router();
 var Utilisateur = require('../schemas/schemas').Utilisateur;
+var Bibliotheque = require('../schemas/schemas').Bibliotheque;
 
 router.get('/', function(req, res){
 	sess = req.session;
@@ -32,6 +33,22 @@ router.put('/:isbn/:ancienneB/:nouvelleB', function(req,res){
 			if(!err){
 				if(utilisateur){
 					var livres;
+					var trouve = false;
+					for(var i=0;i<utilisateur.bibliotheques.length;i++){
+						if (utilisateur.bibliotheques[i].nom == nouvelleBibliotheque){
+							trouve = true;
+						}
+					}
+					if(!trouve){
+						var b = new Bibliotheque({
+							nom: nouvelleBibliotheque
+						});
+						Utilisateur.update(
+							{_id: utilisateur._id},
+							{$push: {bibliotheques: b}},
+							function(err){if(err) console.log(err)}
+						);
+					}
 					for(var i=0;i<utilisateur.bibliotheques.length;i++){
 						if (utilisateur.bibliotheques[i].nom == ancienneBibliotheque){
 							livres = utilisateur.bibliotheques[i].livres;

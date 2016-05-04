@@ -4,10 +4,8 @@ block content
 	message= message
 		
 	if bibliotheque
-		h3= "Livres de la bibliothèque " + bibliotheque.nom + " : "
-		
+		h3= "Ajouter un livre :"
 		form(id="formB", method="post")
-			br
 			div.input
 				input(type="text", id="isbn", name="isbn", placeholder='ISBN')
 				input(type="hidden", name="action", value="creerLivre/"+bibliotheque.nom)
@@ -17,8 +15,9 @@ block content
 				if error
 					span(style="color:red")= " "+error 
 				
+		h3= "Livres de la bibliothèque " + bibliotheque.nom + " : "
 		if bibliotheque.livres && bibliotheque.livres.length > 0
-			table.listeLivres
+			table.liste
 				-var nbLigne = 0;
 				-var classe;
 				each livre in bibliotheque.livres

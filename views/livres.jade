@@ -7,20 +7,28 @@ block content
 		h3= "Mes livres"
 			
 		- var isLivre = false;
-		table
+		table.liste
 			each bibliotheque in bibliotheques
 				if bibliotheque.livres && bibliotheque.livres.length > 0
 				- isLivre = true;
-					each livre in bibliotheque.livres
-						tr
-							td(style="width:auto")
-								a(href='/bibliotheque/'+bibliotheque.nom+'/livre/'+livre.isbn)= livre.titre
-							td
-								a(href='/bibliotheque/'+bibliotheque.nom)= bibliotheque.nom
-							td
-								input(type="image", src="/update.jpg", alt="Modifier", style="height:15px;" onclick="modifier('"+bibliotheque.nom+"','"+livre.titre+"','"+livre.isbn+"');")
-							td
-								input(type="image", src="/delete.jpg", alt="Suppr", style="height:15px;" onclick="supprimer('"+bibliotheque.nom+"','"+livre.titre+"','"+livre.isbn+"');")
+				-var nbLigne = 0;
+				-var classe;
+				each livre in bibliotheque.livres
+					-nbLigne += 1;
+					if nbLigne%2==0
+						-classe = "lignePair";
+					else
+						-classe = "ligneImpair";
+
+					tr
+						td(class=classe)
+							a(href='/bibliotheque/'+bibliotheque.nom+'/livre/'+livre.isbn)= livre.titre
+						td(class=classe)
+							a(href='/bibliotheque/'+bibliotheque.nom)= bibliotheque.nom
+						td
+							input(type="image", src="/update.jpg", alt="Modifier", style="height:15px;" onclick="modifier('"+bibliotheque.nom+"','"+livre.titre+"','"+livre.isbn+"');")
+						td
+							input(type="image", src="/delete.jpg", alt="Suppr", style="height:15px;" onclick="supprimer('"+bibliotheque.nom+"','"+livre.titre+"','"+livre.isbn+"');")
 		if isLivre == false
 			p Aucun livre
 	else
