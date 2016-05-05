@@ -26,25 +26,30 @@ var AWS = function(accessKeyId, secretAccessKey, associateTag){
 			var queryString = createQueryString(params);
 			var url = "https://webservices.amazon.com/onca/xml?"+queryString;    
 			
-			https.get(url, function(response) {
-				var body = '';
-				response.on('data', function(d) {
-					body += d;
-				});
-				response.on('end', function() {
-					parseString(body, 
-						function(err, result) {
-							var parsed = JSON.parse(JSON.stringify(result));
-							console.log(result);
-							if(parsed && parsed['ItemLookupResponse']['Items'][0] && parsed['ItemLookupResponse']['Items'][0]['Item'][0]['ASIN'][0] == itemId){
-								attributes = parsed['ItemLookupResponse']['Items'][0]['Item'][0]['ItemAttributes'][0];
-								item_url = parsed['ItemLookupResponse']['Items'][0]['Item'][0]['DetailPageURL'][0];
-								resolve();
+			try{
+				https.get(url, function(response) {
+					var body = '';
+					response.on('data', function(d) {
+						body += d;
+					});
+					response.on('end', function() {
+						parseString(body, 
+							function(err, result) {
+								var parsed = JSON.parse(JSON.stringify(result));
+								console.log(result);
+								if(parsed && parsed['ItemLookupResponse']['Items'][0] && parsed['ItemLookupResponse']['Items'][0]['Item'][0]['ASIN'][0] == itemId){
+									attributes = parsed['ItemLookupResponse']['Items'][0]['Item'][0]['ItemAttributes'][0];
+									item_url = parsed['ItemLookupResponse']['Items'][0]['Item'][0]['DetailPageURL'][0];
+									resolve();
+								}
 							}
-						}
-					)
+						)
+					});
 				});
-			});
+			}catch(err){
+				console.log(err);
+				reject();
+			}
 		});
 		var imagePromise = new Promise(function(resolve, reject) {
 			var params = [];
@@ -61,23 +66,32 @@ var AWS = function(accessKeyId, secretAccessKey, associateTag){
 			var queryString = createQueryString(params);
 			var url = "https://webservices.amazon.com/onca/xml?"+queryString;    
 			
-			https.get(url, function(response) {
-				var body = '';
-				response.on('data', function(d) {
-					body += d;
-				});
-				response.on('end', function() {
-					parseString(body, 
-						function(err, result) {
-							var parsed = JSON.parse(JSON.stringify(result));
-							if(parsed && parsed['ItemLookupResponse']['Items'][0] && parsed['ItemLookupResponse']['Items'][0]['Item'][0]['ASIN'][0] == itemId){
-								url_image = parsed['ItemLookupResponse']['Items'][0]['Item'][0]['LargeImage'][0]['URL'][0];
-								resolve();
+			try{
+				https.get(url, function(response) {
+					var body = '';
+					response.on('data', function(d) {
+						body += d;
+					});
+					response.on('end', function() {
+						parseString(body, 
+							function(err, result) {
+								var parsed = JSON.parse(JSON.stringify(result));
+								if(parsed && parsed['ItemLookupResponse']['Items'][0] && parsed['ItemLookupResponse']['Items'][0]['Item'][0]['ASIN'][0] == itemId){
+									try{
+										url_image = parsed['ItemLookupResponse']['Items'][0]['Item'][0]['LargeImage'][0]['URL'][0];
+									}catch(err){
+										url_image = '/defaultBookImage.png';
+									}
+									resolve();
+								}
 							}
-						}
-					)
+						)
+					});
 				});
-			});
+			}catch(err){
+				console.log(err);
+				reject();
+			}
 		});		
 		
 		Promise
@@ -85,7 +99,7 @@ var AWS = function(accessKeyId, secretAccessKey, associateTag){
 			.then(function() {
 				sess = req.session;
 				var nomBibliotheque = req.params.nom;
-				var isbnLivre = req.body.isbn;
+				var isbnLivre = itemId;
 				Utilisateur
 					.findOne(
 						{nom : sess.utilisateur}, 
@@ -108,7 +122,7 @@ var AWS = function(accessKeyId, secretAccessKey, associateTag){
 									var livre = new Livre({
 										isbn: isbnLivre,
 										titre: attributes.Title[0],
-										auteur: attributes.Author[0],
+										auteur: attributes.Author == undefined ? 'N/A' : attributes.Author[0],
 										url: item_url,
 										url_image: url_image
 									});
@@ -127,6 +141,29 @@ var AWS = function(accessKeyId, secretAccessKey, associateTag){
 					});
 			}, function() {
 			  console.log('Probleme lors des promesses');
+			})
+			.catch(function(){
+				sess = req.session;
+				var nomBibliotheque = req.params.nom;
+				Utilisateur
+					.findOne(
+						{nom : sess.utilisateur}, 
+						{bibliotheques: {$elemMatch: {nom: nomBibliotheque}}}
+					).exec(function (err, utilisateur) {
+						if (!err) {
+							if(utilisateur){
+								if(utilisateur.bibliotheques[0] !== undefined){
+									res.render('bibliotheque',{
+										bibliotheque: utilisateur.bibliotheques[0], 
+										breadcrumb: ['bibliotheque'], 
+										context: [nomBibliotheque],
+										error: 'Une erreur est survenue.'});
+									return;
+								}
+							}
+						}
+					});
+
 			});
 	}
 };
@@ -210,7 +247,7 @@ router.get('/:nom', function(req, res){
 
 router.post('/:nom', function(req,res){
 	var aws = new AWS('AKIAJEHSLN54UJILBP2A','URao6e7ZHKLTgL9FDfSU4aJ5evszfqtS17lpPXGY',"gestionbi-21");
-	aws.itemLookup(req.body.isbn, req, res);
+	aws.itemLookup(req.body.isbn.trim(), req, res);
 });
 
 router.delete('/:nom', function(req,res){
