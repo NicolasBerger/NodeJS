@@ -28,5 +28,8 @@ router.use('/accueil', checkAuth, require('./accueil'));
 router.use('/bibliotheque', checkAuth, require('./bibliotheque'));
 router.use('/livres', checkAuth, require('./livres'));
 router.use('/logout', checkAuth, require('./logout'));
+router.use(function(req,res){
+	res.render('loginRedirect', {text:'La page demandée n\'existe pas, redirection vers la page d\'authentification...'});
+});
 
 module.exports = router;
