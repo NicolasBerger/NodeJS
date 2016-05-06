@@ -21,10 +21,10 @@
 				if breadcrumb
 					- var breadHref = "";
 					for b, i in breadcrumb
-						- breadHref += b + "/"
+						- breadHref += "/" + b
 						if context && context[i]								
-							- breadHref += context[i] + "/"
-						a(href="/"+breadHref)= b
+							- breadHref += "/" + context[i]
+						a(href=breadHref)= b
 		block content
 		
 		script.
